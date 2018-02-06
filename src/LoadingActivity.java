@@ -3,6 +3,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.prefs.Preferences;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -36,13 +37,23 @@ public class LoadingActivity {
 	static ProgressBar progressBar;
 
 	static DatabaseReference mDatabase;
+	static Preferences preferences;
+	static String userKey;
 	/**
 	 * Launch the application.
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		try {
-			MacAddrress=getMacAddress();
+		
+			 preferences = Preferences.userNodeForPackage(LoadingActivity.class);
+			 userKey=preferences.get("userKey", "default");
+			 System.out.println("from load"+userKey);
+			 if(userKey.equals("default")) {
+				 String userKey = Long.toHexString(Double.doubleToLongBits(Math.random()));
+				 preferences.put("userKey", ""+userKey);
+			 }
+
 			FirebaseInitialize();			
 			LoadingActivity window = new LoadingActivity();
 			window.open();
@@ -138,29 +149,7 @@ public class LoadingActivity {
 			}
 		}).start();
 	}
-	public static String getMacAddress() throws UnknownHostException,
-	SocketException
-	{
-		InetAddress ipAddress = InetAddress.getLocalHost();
-		NetworkInterface networkInterface = NetworkInterface
-				.getByInetAddress(ipAddress);
-		byte[] macAddressBytes = networkInterface.getHardwareAddress();
-		StringBuilder macAddressBuilder = new StringBuilder();
 
-		for (int macAddressByteIndex = 0; macAddressByteIndex < macAddressBytes.length; macAddressByteIndex++)
-		{
-			String macAddressHexByte = String.format("%02X",
-					macAddressBytes[macAddressByteIndex]);
-			macAddressBuilder.append(macAddressHexByte);
-
-			if (macAddressByteIndex != macAddressBytes.length - 1)
-			{
-				macAddressBuilder.append("");
-			}
-		}
-//		System.out.println(macAddressBuilder.toString());
-		return macAddressBuilder.toString();
-	}
 	public static void FirebaseInitialize() {
 		FileInputStream refreshToken;
 		try {
@@ -184,8 +173,8 @@ public class LoadingActivity {
 
 	public static void checkAccount() {
 
-		mDatabase=FirebaseDatabase.getInstance().getReference().child("macs");
-		mDatabase.child(""+MacAddrress).addValueEventListener(new ValueEventListener() {
+		mDatabase=FirebaseDatabase.getInstance().getReference().child("pcUser");
+		mDatabase.child(""+userKey).addValueEventListener(new ValueEventListener() {
 
 			@Override
 			public void onDataChange(DataSnapshot snapshot) {

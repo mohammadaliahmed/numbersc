@@ -39,6 +39,7 @@ import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFrame;
 
@@ -63,7 +64,6 @@ public class MainActivity {
 	private Label lblFilename;
 	private static Button Download;
 	String fileN;
-	private Button loadJson;
 	FirebaseDatabase database;
 	static DatabaseReference mDatabase ;
 	private Text startpage;
@@ -71,7 +71,6 @@ public class MainActivity {
 	public static Button scrape ;
 	private Text endpage;
 
-	static String macAdress;
 
 	static int canScrape=0;
 	long  start = 100;
@@ -84,6 +83,8 @@ public class MainActivity {
 	int  countdown=100;
 	
 	static String linksFileName;
+	static Preferences preferences;
+	static String userKey;
 
 	/**
 	 * Launch the application.
@@ -91,7 +92,7 @@ public class MainActivity {
 	 */
 	public static void main(String[] args) {
 		try {
-			macAdress=getMacAddress();
+			
 			checkAccount();
 			MainActivity window = new MainActivity();
 			window.open();
@@ -109,6 +110,9 @@ public class MainActivity {
 	 */
 
 	public void open() {
+		preferences = Preferences.userNodeForPackage(LoadingActivity.class);
+		 userKey=preferences.get("userKey", "default");
+//		 System.out.println("from main "+userKey);
 		Display display = Display.getDefault();
 		createContents();
 		shell.open();
@@ -357,7 +361,7 @@ public class MainActivity {
 	}
 
 	public void getValueFromDb() {
-		mDatabase=FirebaseDatabase.getInstance().getReference().child("macs");
+		mDatabase=FirebaseDatabase.getInstance().getReference().child("pcUser");
 		mDatabase.addValueEventListener(new ValueEventListener() {
 
 			@Override
@@ -368,8 +372,8 @@ public class MainActivity {
 
 
 					UserDetails userDetails;
-					try {
-						userDetails = snapshot.child(""+getMacAddress()).getValue(UserDetails.class);
+					
+						userDetails = snapshot.child(""+userKey).getValue(UserDetails.class);
 
 						if(userDetails!=null) {
 //							System.out.println(" can scrape above"+canScrape);
@@ -407,11 +411,7 @@ public class MainActivity {
 
 						}
 
-					}
-					catch (UnknownHostException | SocketException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					
 				}
 			}	
 
@@ -446,27 +446,5 @@ public class MainActivity {
 
 
 	}
-	public static String getMacAddress() throws UnknownHostException,
-	SocketException
-	{
-		InetAddress ipAddress = InetAddress.getLocalHost();
-		NetworkInterface networkInterface = NetworkInterface
-				.getByInetAddress(ipAddress);
-		byte[] macAddressBytes = networkInterface.getHardwareAddress();
-		StringBuilder macAddressBuilder = new StringBuilder();
-
-		for (int macAddressByteIndex = 0; macAddressByteIndex < macAddressBytes.length; macAddressByteIndex++)
-		{
-			String macAddressHexByte = String.format("%02X",
-					macAddressBytes[macAddressByteIndex]);
-			macAddressBuilder.append(macAddressHexByte);
-
-			if (macAddressByteIndex != macAddressBytes.length - 1)
-			{
-				macAddressBuilder.append("");
-			}
-		}
-		//		System.out.println(macAddressBuilder.toString());
-		return macAddressBuilder.toString();
-	}
+	
 }

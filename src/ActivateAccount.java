@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.prefs.Preferences;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -37,6 +38,8 @@ public class ActivateAccount {
 	static String codeFromDb;
 	private Label lblNewLabel;
 	private Label lblConatctMali;
+	static Preferences preferences;
+	static String userKey;
 
 	/**
 	 * Launch the application.
@@ -56,6 +59,9 @@ public class ActivateAccount {
 	 * Open the window.
 	 */
 	public void open() {
+		preferences = Preferences.userNodeForPackage(LoadingActivity.class);
+		 userKey=preferences.get("userKey", "default");
+//		 System.out.println("from ac "+userKey);
 		Display display = Display.getDefault();
 		createContents();
 		shlNumberScraper.open();
@@ -69,10 +75,9 @@ public class ActivateAccount {
 	}
 	
 	public void valueFromDb() {
-		mDatabase=FirebaseDatabase.getInstance().getReference().child("macs");
+		mDatabase=FirebaseDatabase.getInstance().getReference().child("pcUser");
 		
-			try {
-				mDatabase.child(""+getMacAddress()).addValueEventListener(new ValueEventListener() {
+				mDatabase.child(""+userKey).addValueEventListener(new ValueEventListener() {
 
 					@Override
 					public void onDataChange(DataSnapshot snapshot) {
@@ -94,13 +99,9 @@ public class ActivateAccount {
 
 					}
 				});
-			} catch (UnknownHostException | SocketException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}	
+			
+	
 	}
-	
-	
 
 	/**
 	 * Create contents of the window.
@@ -152,8 +153,8 @@ public class ActivateAccount {
 //				System.out.println(codeEntered);
 				if(codeFromDb!=null) {
 					if(codeFromDb.equals(codeEntered)) {
-						try {
-							mDatabase.child(""+getMacAddress()).child("active").setValue("yes") .addOnSuccessListener(new OnSuccessListener<Void>() {
+					
+							mDatabase.child(""+userKey).child("active").setValue("yes") .addOnSuccessListener(new OnSuccessListener<Void>() {
 								@Override
 								public void onSuccess(Void aVoid) {
 //									System.out.println("here");
@@ -171,10 +172,6 @@ public class ActivateAccount {
 
 
 
-						} catch (UnknownHostException | SocketException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
 
 					}else {
 						Display.getDefault().asyncExec(new Runnable() {
@@ -222,28 +219,6 @@ public class ActivateAccount {
 
 
 	}
-	public static String getMacAddress() throws UnknownHostException,
-	SocketException
-	{
-		InetAddress ipAddress = InetAddress.getLocalHost();
-		NetworkInterface networkInterface = NetworkInterface
-				.getByInetAddress(ipAddress);
-		byte[] macAddressBytes = networkInterface.getHardwareAddress();
-		StringBuilder macAddressBuilder = new StringBuilder();
-
-		for (int macAddressByteIndex = 0; macAddressByteIndex < macAddressBytes.length; macAddressByteIndex++)
-		{
-			String macAddressHexByte = String.format("%02X",
-					macAddressBytes[macAddressByteIndex]);
-			macAddressBuilder.append(macAddressHexByte);
-
-			if (macAddressByteIndex != macAddressBytes.length - 1)
-			{
-				macAddressBuilder.append("");
-			}
-		}
-		//		System.out.println(macAddressBuilder.toString());
-		return macAddressBuilder.toString();
-	}
+	
 
 }

@@ -1,6 +1,6 @@
 
 public class UserDetails {
-	String username,email,password,active,phone,macAdress,time,code;
+	String username,email,password,active,phone,uniqueValue,time,code;
 
 	
 	
@@ -10,18 +10,36 @@ public class UserDetails {
 	}
 
 
-	public UserDetails(String username, String email, String password,  String phone,String active, String macAdress,
-			String time,String code) {
+	
+
+	public UserDetails(String username, String email, String password, String phone,String active , String uniqueValue,
+			String time, String code) {
 		super();
 		this.username = username;
 		this.email = email;
 		this.password = password;
 		this.active = active;
 		this.phone = phone;
-		this.macAdress = macAdress;
+		this.uniqueValue = uniqueValue;
 		this.time = time;
-		this.code=code;
+		this.code = code;
 	}
+
+
+
+
+	public String getUniqueValue() {
+		return uniqueValue;
+	}
+
+
+
+
+	public void setUniqueValue(String uniqueValue) {
+		this.uniqueValue = uniqueValue;
+	}
+
+
 
 
 	public String getCode() {
@@ -74,14 +92,6 @@ public class UserDetails {
 
 	public void setPhone(String phone) {
 		this.phone = phone;
-	}
-
-	public String getMacAdress() {
-		return macAdress;
-	}
-
-	public void setMacAdress(String macAdress) {
-		this.macAdress = macAdress;
 	}
 
 	public String getTime() {
